@@ -4,9 +4,9 @@ from NuRadioMC.utilities import units
 from scipy import optimize as opt
 
 
-def get_high_low_rate(sigma, dt=1 * units.ns, time_window_high_low=5 * units.ns):
+def get_high_low_rate(sigma, dt=1 * units.ns, time_window_high_low=5 * units.ns, rebound = 0.25):
     p1 = stats.norm.sf(sigma) / dt
-    p2 = stats.norm.sf(3. / 4 * sigma) / dt
+    p2 = stats.norm.sf((1 - rebound) * sigma) / dt
     return p1 * p2 * time_window_high_low
 
 
@@ -45,13 +45,13 @@ if __name__ == "__main__":
     s = get_threshold(R, 4, 2, time_window=40 * units.ns)
     s = get_threshold(R, 4, 4, time_window=5 * units.ns)
     s = get_threshold(R, 4, 2, time_window=5 * units.ns)
-    
-#     
+
+#
 #     R = .1 * units.Hz
 #     s = get_threshold(R, 8, 3, time_window=200 * units.ns)
 #     s = get_threshold(R, 4, 4, time_window=40 * units.ns)
 #     s = get_threshold(R, 4, 2, time_window=40 * units.ns)
-#     
+#
 #     R = 1 * units.Hz
 #     s = get_threshold(R, 8, 3, time_window=200 * units.ns)
 #     s = get_threshold(R, 4, 4, time_window=40 * units.ns)
