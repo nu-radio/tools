@@ -2,7 +2,23 @@ import scipy.special
 from scipy import stats
 from NuRadioMC.utilities import units
 from scipy import optimize as opt
+from scipy import interpolate as intp
+import numpy as np
 
+
+def get_high_low_rate_simulated(sigma, simulation_name="NTU+cheb_1"):
+    sigmas, rates, rates_error = np.loadtxt("data/{}.txt".format(simulation_name), unpack=True)
+    get_rate = intp.interp1d(sigmas, rates)
+    return get_rate(sigma)
+
+def get_sigma_high_low_simulated(rate, simulation_name="NTU+cheb_1"):
+    """
+    calculates the high+low threshold for a given trigger rate
+    """
+    def obj(sigma):
+        return get_high_low_rate_simulated(sigma, simulation_name) - rate
+    res = opt.brentq(obj, 0, 10)
+    return res
 
 def get_high_low_rate(sigma, dt=1 * units.ns, time_window_high_low=5 * units.ns, rebound = 0.25):
     p1 = stats.norm.sf(sigma) / dt
@@ -29,6 +45,11 @@ def get_sigma(rate, dt=1 * units.ns):
     """
     return stats.norm.isf(rate * dt)
 
+def get_rate(sigma, dt=1*units.ns):
+    """
+    calculates the rate for a single sided threshold
+    """
+    return stats.norm.sf(sigma)/dt
 
 def get_threshold(r_global, n_channels, n_coincidences, time_window, dt=1 * units.ns, time_window_high_low=5 * units.ns):
     r_single = (r_global / n_coincidences / scipy.special.comb(n_channels, n_coincidences) /
